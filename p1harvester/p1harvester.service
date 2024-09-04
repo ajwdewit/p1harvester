@@ -1,0 +1,16 @@
+[Unit]
+Description=Starts p1 harvester for collecting energy usage data
+After=syslog.target
+
+[Service]
+Type=simple
+Restart=always
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/Sources/p1
+ExecStart=/home/pi/Sources/p1/start_p1_reader.py
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target

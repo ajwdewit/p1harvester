@@ -1,0 +1,29 @@
+[build-system]
+requires = ["flit_core>=3.4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+dynamic = ["version"]
+name = "p1harvester"
+description = "p1harvester is a python package to read energy useage data from a smart meter and store it in a database."
+authors = [
+  {name = "Allard de Wit", email = "ajwdewit@xs4all.nl"},
+]
+maintainers = [
+  {name = "Allard de Wit", email = "ajwdewit@xs4all.nl"},
+]
+dependencies = [
+    "sqlalchemy<2.0",
+    "pyserial==3.5",
+    "PyMySQL==1.1"
+]
+requires-python = ">= 3.7"
+readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: EUPL License",
+    "Operating System :: OS Independent",
+]
+
+[project.scripts]
+p1harvester = "p1harvester:cli"
