@@ -1,5 +1,5 @@
 [Unit]
-Description=Starts p1 harvester for collecting energy usage data
+Description=Starts p1 harvester for collecting energy/gas usage data
 After=syslog.target
 
 [Service]
@@ -7,8 +7,7 @@ Type=simple
 Restart=always
 User=pi
 Group=pi
-WorkingDirectory=/home/pi/Sources/p1
-ExecStart=/home/pi/Sources/p1/start_p1_reader.py
+ExecStart=/usr/local/bin/p1harvester
 StandardOutput=syslog
 StandardError=syslog
 

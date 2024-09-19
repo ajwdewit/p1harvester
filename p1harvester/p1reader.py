@@ -4,14 +4,13 @@
 # Results are written to a relational database and can be visualized by grafana
 #
 import time
-import datetime as dt
 import re
 from math import trunc
 import syslog
 import serial
 import sqlalchemy as sa
 
-import config
+from . import config
 
 
 def create_tables():
@@ -95,14 +94,12 @@ def main():
         try:
             net_af, net_in, gas_stand = read_p1()
             write_to_db(net_af, net_in, gas_stand)
-            time.sleep(config.sleep)
-
-            # print("Done: ", net_af, net_in, gas_usage, gas_stand)
         except Exception as e:
             msg = f"Failure getting data from P1 port {e}"
             print(msg)
             syslog.syslog(msg)
-            time.sleep(config.sleep)
+
+        time.sleep(config.sleep)
 
 
 if __name__ == "__main__":
