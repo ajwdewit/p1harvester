@@ -22,9 +22,9 @@ def create_tables():
     meta = sa.MetaData(engine)
     tbl = sa.Table("p1_readouts", meta,
                    sa.Column("time", sa.Integer, primary_key=True),
-                   sa.Column("net_afname", sa.Float),
-                   sa.Column("net_injectie", sa.Float),
-                   sa.Column("gas_meterstand", sa.Float),
+                   sa.Column("net_use", sa.Float),
+                   sa.Column("net_injection", sa.Float),
+                   sa.Column("gas_meter_reading", sa.Float),
                    )
     try:
         tbl.create()
@@ -34,18 +34,16 @@ def create_tables():
     return tbl
 
 
-def write_to_db(net_afname, net_injectie, gas_meterstand):
-    """Writes the energy usage (net_afname [kW]) and gas gauge state
-    (gas_meterstand [m3]) to the DB table.
+def write_to_db(rec):
+    """Writes the energy usage to the DB table.
+
+    :param rec: the record holding energy usage data from P1
     """
+
     engine = sa.create_engine(config.dsn)
     meta = sa.MetaData(engine)
     tbl = sa.Table("p1_readouts", meta, autoload=True)
-    i = tbl.insert().values(time=trunc(time.time()),
-                            net_afname=net_afname,
-                            net_inject=net_injectie,
-                            gas_meterstand=gas_meterstand
-                            )
+    i = tbl.insert().values(**rec)
     i.execute()
 
 
@@ -84,7 +82,12 @@ def read_p1():
                 gas_meterstand = parse_gas_m3(s)
 
             if None not in (net_afname, net_injectie, gas_meterstand):
-                return net_afname, net_injectie, gas_meterstand
+                rec = dict(time=trunc(time.time()),
+                            net_use=net_afname,
+                            net_injection=net_injectie,
+                            gas_meter_reading=gas_meterstand
+                            )
+                return rec
 
 
 def main():
@@ -92,8 +95,8 @@ def main():
 
     while True:
         try:
-            net_af, net_in, gas_stand = read_p1()
-            write_to_db(net_af, net_in, gas_stand)
+            rec = read_p1()
+            write_to_db(rec)
         except Exception as e:
             msg = f"Failure getting data from P1 port {e}"
             print(msg)
