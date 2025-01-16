@@ -18,4 +18,6 @@ from (
 	from
 	   p1_readouts pr
 	) t1
+where
+  t1.seconds < 120
 ;

@@ -13,6 +13,39 @@ import sqlalchemy as sa
 from . import config
 
 
+def get_serial_config():
+    """Returns the configuration for the serial port
+
+    :return: a dict with pyserial settings
+    """
+
+    serial_config = dict(
+        xonxoff = 0,
+        rtscts = 0,
+        timeout = 12,
+        port = config.USB_device
+    )
+    if not config.DSMR_new_protocol:
+        d = dict(
+            # DSMR 2.2 > 9600 7E1:
+            baudrate = 9600,
+            bytesize = serial.SEVENBITS,
+            parity = serial.PARITY_EVEN,
+            stopbits = serial.STOPBITS_ONE,
+        )
+    else:
+        d = dict(
+            # DSMR 4.0/4.2 > 115200 8N1:
+            baudrate = 115200,
+            bytesize = serial.EIGHTBITS,
+            parity = serial.PARITY_NONE,
+            stopbits = serial.STOPBITS_ONE,
+        )
+    serial_config.update(d)
+
+    return serial_config
+
+
 def create_tables():
     """Creates output table on a relational DB system.
 
@@ -70,10 +103,11 @@ def read_p1():
     net_afname = None
     net_injectie = None
     gas_meterstand = None
-    with serial.Serial(config.USB_device, baudrate=115200) as ser:
+    serial_config = get_serial_config()
+    with serial.Serial(**serial_config) as ser:
         while True:
             s = ser.readline()
-            s = s.decode()
+            s = s.decode('ascii')
             if s.startswith("1-0:1.7.0"):
                 net_afname = parse_kilowatts(s)
             if s.startswith("1-0:2.7.0"):
